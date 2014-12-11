@@ -9,18 +9,46 @@
  Dual licensed: GPL v2 and MIT, see texts at http://opensource.org/licenses/
 */
 
+//check if we are in a wordpress environment
+if (file_exists('wp-config.php')) {
+	include('wp-config.php');
+	define('DB_PORT', '');
+}
+
+// check if we are on a default drupal environment
+if (file_exists('sites/default/settings.php')) {
+	include('sites/default/settings.php');
+	define('DB_USER', $databases['default']['default']['username']);
+	define('DB_PASSWORD', $databases['default']['default']['password']);
+	define('DB_NAME', $databases['default']['default']['database']);
+	define('DB_HOST', $databases['default']['default']['host']);
+	define('DB_PORT', isset($databases['default']['default']['port'])?$databases['default']['default']['port']:'');
+	define('DB_CHARSET', isset($databases['default']['default']['charset'])?$databases['default']['default']['charset']:'');
+}
+
+// place the settings here if we are not on a standard environment
+if (!defined('DB_NAME')) {
+	define('DB_NAME', 'database_name');
+	define('DB_USER', 'username');
+	define('DB_PASSWORD', 'password');
+	define('DB_HOST', 'localhost');
+	define('DB_CHARSET', 'utf8');
+	define('DB_COLLATE', '');
+	define('DB_PORT', '');
+}
+
  $ACCESS_PWD=''; #!!!IMPORTANT!!! this is script access password, SET IT if you want to protect you DB from public access
 
  #DEFAULT db connection settings
  # --- WARNING! --- if you set defaults - it's recommended to set $ACCESS_PWD to protect your db!
- $DBDEF=array(
- 'user'=>"",#required
- 'pwd'=>"", #required
- 'db'=>"",  #optional, default DB
- 'host'=>"",#optional
- 'port'=>"",#optional
- 'chset'=>"utf8",#optional, default charset
- );
+$DBDEF=array(
+	'user'=>DB_USER,#required
+	'pwd'=>DB_PASSWORD, #required
+	'db'=>DB_NAME,  #optional, default DB
+	'host'=>DB_HOST,#optional
+	'port'=>DB_PORT,#optional
+	'chset'=>DB_CHARSET,#optional, default charset
+);
 if (function_exists('date_default_timezone_set')) date_default_timezone_set('UTC');#required by PHP 5.1+
 
 //constants
